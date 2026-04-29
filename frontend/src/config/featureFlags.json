@@ -1,5 +1,5 @@
 {
-  "module": 4,
+  "module": 2,
   "ui": {
     "showMap": true,
     "enableCreatePoint": false,
@@ -9,8 +9,8 @@
     "showAiLabels": false
   },
   "api": {
-    "enablePointsApi": true,
-    "pointsSource": "dynamodb"
+    "enablePointsApi": false,
+    "pointsSource": "mock"
   },
   "security": {
     "enableBasicAuthForImport": false,
