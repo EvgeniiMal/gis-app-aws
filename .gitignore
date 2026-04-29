@@ -5,7 +5,7 @@ node_modules/
 dist/
 cdk.out/
 *.js.map
-*.d.ts
+dist/**/*.d.ts
 
 # CDK context (auto-generated on deploy, contains account IDs)
 cdk.context.json
