@@ -1,0 +1,78 @@
+openapi: 3.0.0
+info:
+  title: Point Service API
+  description: API for managing geographic points
+  version: 1.0.0
+servers:
+  - url: https://e4avtt9qb8.execute-api.eu-west-1.amazonaws.com/dev/
+    description: Development server
+
+paths:
+  /points:
+    get:
+      summary: Get all points
+      operationId: getAllPoints
+      tags:
+        - Points
+      responses:
+        '200':
+          description: List of points retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Point'
+        '500':
+          description: Internal server error
+  /points/{id}:
+    get:
+      summary: Get a point by ID
+      operationId: getPointById
+      tags:
+        - Points
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Point ID
+      responses:
+        '200':
+          description: Point retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Point'
+        '404':
+          description: Point not found
+        '500':
+          description: Internal server error
+          
+components:
+  schemas:
+    Point:
+      type: object
+      required:
+        - id
+        - latitude
+        - longitude
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the point
+        latitude:
+          type: number
+          format: double
+          description: Latitude coordinate
+        longitude:
+          type: number
+          format: double
+          description: Longitude coordinate
+        name:
+          type: string
+          description: Name of the point
+        description:
+          type: string
+          description: Description of the point
