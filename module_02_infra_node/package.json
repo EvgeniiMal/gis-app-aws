@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "cdk:deploy": "cdk deploy",
+    "cdk:deploy": "npm --prefix ../frontend run build && cdk deploy",
     "cdk:destroy": "cdk destroy"
   },
   "dependencies": {
