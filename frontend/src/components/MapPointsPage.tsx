@@ -1,6 +1,18 @@
 import React from "react";
 import type { FeatureFlags, Point } from "../types";
 import { DisabledFeature } from "./DisabledFeature";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+
+// Configure Leaflet marker icons
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
 
 type Props = {
   flags: FeatureFlags;
@@ -14,23 +26,55 @@ type Props = {
   onLogout?: () => void;
 };
 
-const DEFAULT_CENTER = {
-  latitude: 50.4501,
-  longitude: 30.5234,
-};
+const MapComponent: React.FC<{ points: Point[] }> = ({ points }) => {
+  const mapRef = React.useRef<HTMLDivElement>(null);
+  const mapInstanceRef = React.useRef<L.Map | null>(null);
 
-const buildEmbedUrl = (point?: Point): string => {
-  const center = point
-    ? { latitude: point.latitude, longitude: point.longitude }
-    : DEFAULT_CENTER;
-  const delta = 0.35;
-  const left = center.longitude - delta;
-  const right = center.longitude + delta;
-  const top = center.latitude + delta;
-  const bottom = center.latitude - delta;
-  const marker = `${center.latitude},${center.longitude}`;
+  React.useEffect(() => {
+    if (!mapRef.current) return;
 
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${left}%2C${bottom}%2C${right}%2C${top}&layer=mapnik&marker=${marker}`;
+    const center: [number, number] = points.length > 0
+      ? [points[0].latitude, points[0].longitude]
+      : [48.0, 10.0];
+
+    if (!mapInstanceRef.current) {
+      const map = L.map(mapRef.current).setView([center[0], center[1]], 4);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 19,
+      }).addTo(map);
+      mapInstanceRef.current = map;
+    }
+
+    // Clear existing markers
+    mapInstanceRef.current.eachLayer((layer: L.Layer) => {
+      if (layer instanceof L.Marker) mapInstanceRef.current!.removeLayer(layer);
+    });
+
+    // Add all points as markers
+    points.forEach((point) => {
+      L.marker([point.latitude, point.longitude])
+        .bindPopup(`<strong>${point.title}</strong><br>${point.description}`)
+        .addTo(mapInstanceRef.current!);
+    });
+
+    return () => {
+      // Cleanup is handled by keeping the map instance
+    };
+  }, [points]);
+
+  return (
+    <div
+      ref={mapRef}
+      style={{
+        height: "360px",
+        width: "100%",
+        borderRadius: "12px",
+        border: "1px solid #d0d0d0",
+        overflow: "hidden",
+      }}
+    />
+  );
 };
 
 export const MapPointsPage: React.FC<Props> = ({
@@ -46,7 +90,6 @@ export const MapPointsPage: React.FC<Props> = ({
 }) => {
   const canCreatePoint = flags.ui.enableCreatePoint && (!flags.security.requireAuthForCreatePoint || isAuthenticated);
   const canUploadPhoto = flags.ui.enableUploadPhoto && (!flags.security.enableCognito || isAuthenticated);
-  const mapUrl = buildEmbedUrl(points[0]);
   const uploadInputRef = React.useRef<HTMLInputElement | null>(null);
   const csvInputRef = React.useRef<HTMLInputElement | null>(null);
 
@@ -111,15 +154,7 @@ export const MapPointsPage: React.FC<Props> = ({
       ) : null}
       {flags.ui.showMap ? (
         <section style={{ marginTop: 12 }}>
-          <div style={{ overflow: "hidden", border: "1px solid #d0d0d0", borderRadius: 12 }}>
-            <iframe
-              title="OpenStreetMap"
-              src={mapUrl}
-              style={{ border: 0, width: "100%", minHeight: 360 }}
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
+          <MapComponent points={points} />
           <div style={{ marginTop: 8, fontSize: 12 }}>
             Map data from <a href="https://www.openstreetmap.org" target="_blank" rel="noreferrer">OpenStreetMap</a>
           </div>
