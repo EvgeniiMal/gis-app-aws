@@ -1,10 +1,10 @@
 {
   "name": "mappoints-backend-node-template",
   "private": true,
-  "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "check": "tsc --noEmit -p tsconfig.json"
+    "check": "tsc --noEmit -p tsconfig.json",
+    "test": "node --import tsx --test **/*.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.775.0",
@@ -16,6 +16,8 @@
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.147",
+    "@types/node": "^25.6.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.6.3"
   }
 }

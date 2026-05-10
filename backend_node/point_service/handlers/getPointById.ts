@@ -1,21 +1,31 @@
 import type { APIGatewayProxyEventV2, APIGatewayProxyStructuredResultV2 } from "aws-lambda";
+import { sharedHeaders } from "../utils/shared-headers.js";
+import { mockPoints } from "../data/mock-points.js";
 
-export const handler = async (
+export const getPointById = async (
   event: APIGatewayProxyEventV2,
 ): Promise<APIGatewayProxyStructuredResultV2> => {
-  const pointId = event.pathParameters?.pointId;
+  const pointId = event.pathParameters?.id;
   if (!pointId) {
-    return { statusCode: 400, body: JSON.stringify({ message: "pointId is required" }) };
+    return {
+      statusCode: 400,
+      headers: sharedHeaders,
+      body: JSON.stringify({ message: "Missing /\"id\"/ in path parameters" }),
+    };
+  }
+
+  const point = mockPoints.find((p) => p.id === pointId);
+  if (!point) {
+    return {
+      statusCode: 404,
+      headers: sharedHeaders,
+      body: JSON.stringify({ message: "Point not found" }),
+    };
   }
 
   return {
     statusCode: 200,
-    body: JSON.stringify({
-      id: pointId,
-      title: "Starter Point",
-      description: "Replace with DynamoDB lookup in module 4",
-      latitude: 0,
-      longitude: 0,
-    }),
+    headers: sharedHeaders,
+    body: JSON.stringify(point),
   };
 };

@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
-    "cdk:deploy": "cdk deploy",
+    "cdk:deploy": "npm --prefix ../frontend run build && cdk deploy",
     "cdk:destroy": "cdk destroy"
   },
   "dependencies": {
@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "aws-cdk": "^2.1014.0",
+    "esbuild": "0.28.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   }

@@ -1,5 +1,5 @@
 {
-  "module": 2,
+  "module": 3,
   "ui": {
     "showMap": true,
     "enableCreatePoint": false,
@@ -9,7 +9,7 @@
     "showAiLabels": false
   },
   "api": {
-    "enablePointsApi": false,
+    "enablePointsApi": true,
     "pointsSource": "mock"
   },
   "security": {
