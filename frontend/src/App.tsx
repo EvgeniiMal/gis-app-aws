@@ -44,7 +44,7 @@ const mockPoints: Point[] = [
 
 export const App: React.FC = () => {
   const [flags] = useState<FeatureFlags>(featureFlags as FeatureFlags);
-  const [points, setPoints] = useState<Point[]>(mockPoints);
+  const [points, setPoints] = useState<Point[]>(flags.api.pointsSource === "mock" ? mockPoints : []);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState<string | undefined>();
   const api = createApiClient({
@@ -79,9 +79,28 @@ export const App: React.FC = () => {
     }
     try {
       const items = await api.getPoints();
-      setPoints(items);
+      if (!flags.ai.enableRekognitionLabels || !flags.ui.showAiLabels) {
+        setPoints(items);
+        return;
+      }
+
+      const pointsWithDetails = await Promise.all(
+        items.map(async (point) => {
+          if (!point.photoUrl) {
+            return point;
+          }
+
+          try {
+            return await api.getPointById(point.id);
+          } catch {
+            return point;
+          }
+        }),
+      );
+
+      setPoints(pointsWithDetails);
     } catch {
-      setPoints(mockPoints);
+      setPoints(flags.api.pointsSource === "mock" ? mockPoints : []);
     }
   };
 
