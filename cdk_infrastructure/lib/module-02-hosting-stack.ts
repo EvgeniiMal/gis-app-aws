@@ -45,7 +45,6 @@ export class Module02HostingStack extends cdk.Stack {
       distribution,
       distributionPaths: ["/*"],
     });
-
     const getPointsList = new NodejsFunction(this, "GetPointsList", {
       entry: path.join(POINT_SERVICE_HANDLERS_ROOT, "getPointsList.ts"),
       handler: "getPointsList",
@@ -85,14 +84,6 @@ export class Module02HostingStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "ApiUrl", {
       value: api.url
-    });
-
-    new cdk.CfnOutput(this, "CloudFrontUrl", {
-      value: `https://${distribution.distributionDomainName}`,
-    });
-
-    new cdk.CfnOutput(this, "BucketName", {
-      value: siteBucket.bucketName,
     });
   }
 }
